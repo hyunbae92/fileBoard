@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Photo">
+	<insert id="insertPhotoBoard" parameterType="pbVO">
+		insert into photo_board(PB_NUM, PB_TITLE, PB_CONTENT,
+			<if test="pbPhotoName != null"> 
+			PB_PHOTO_NAME, PB_PHOTO_PATH,
+			</if>
+		CREDAT, CRETIM)
+		values(seq_pb_num.nextval, #{pbTitle}, #{pbContent},
+			<if test="pbPhotoName != null"> 
+			#{pbPhotoName}, #{pbPhotoPath},
+			</if>
+		to_char(sysdate,'YYYYMMDD'), to_char(sysdate,'HH24MISS'))
+	</insert>
+	
+	<select id="selectPhotoBoard" resultType="pbVO" parameterType="pbVO">
+		select  PB_NUM, PB_TITLE, PB_CONTENT, PB_PHOTO_NAME, PB_PHOTO_PATH, CREDAT, CRETIM from photo_board
+		where pb_num = #{pbNum}
+	</select>
+	<select id="selectPhotoBoardList" resultType="pbVO" parameterType="pbVO">
+		select * FROM
+			(select ROWNUM as r_num, pb.* FROM
+				(select PB_NUM, PB_TITLE, PB_CONTENT, PB_PHOTO_NAME, PB_PHOTO_PATH, CREDAT, CRETIM 
+				from photo_board
+				<where>
+					<if test='pbTitle!=null and pbTitle!=""'>
+						and pb_title like '%' || #{pbTitle} || '%'
+					</if>
+					<if test='pbContent!=null and pbContent!=""'>
+						and pb_content like '%' || #{pbContent} || '%'
+					</if>
+					<if test='credat1!=null and credat1!=""'>
+						and credat &gt;= #{credat1}
+					</if>
+					<if test='credat2!=null and credat2!=""'>
+						and credat &lt;= #{credat2}
+					</if>
+				</where>
+				order by pb_num desc) pb 
+			where 	ROWNUM &lt;=#{pageVO.endNum} )
+		where r_num &gt;=#{pageVO.startNum}
+		
+	</select>
+	<select id="selectPhotoBoardsForDelete" resultType="pbVO" parameterType="int">
+		select pb_photo_path from photo_board
+		<where>
+			<foreach collection="array" item="pbNum" separator="or" open="(" close=")">
+				pb_num = #{pbNum}
+			</foreach>
+			and pb_photo_path is not null
+		</where>
+	</select>
+	<select id="selectPhotoBoardCount" resultType="int" parameterType="pbVO">
+		select count(*) from photo_board
+		<where>
+			<if test='pbTitle!=null and pbTitle!=""'>
+				and pb_title like '%' || #{pbTitle} || '%'
+			</if>
+			<if test='pbContent!=null and pbContent!=""'>
+				and pb_content like '%' || #{pbContent} || '%'
+			</if>
+			<if test='credat1!=null and credat1!=""'>
+				and credat &gt;= #{credat1}
+			</if>
+			<if test='credat2!=null and credat2!=""'>
+				and credat &lt;= #{credat2}
+			</if>
+		</where>
+	</select>
+	<delete id="deletePhotoBoard" parameterType="pbVO" >
+		delete from photo_board where pb_num = #{pbNum}
+	</delete>
+	<update id="updatePhotoBoard" parameterType="pbVO">
+		update photo_board 
+		<set>
+			<if test="pbTitle != null">pb_title = #{pbTitle},</if>
+			<if test="pbContent != null">pb_content = #{pbContent},</if>
+			<if test="pbPhotoName != null">pb_photo_name = #{pbPhotoName},</if>
+			<if test="pbPhotoPath != null">pb_photo_path = #{pbPhotoPath},</if>
+		</set>
+		where pb_num = #{pbNum}
+	</update>
+</mapper>
+
