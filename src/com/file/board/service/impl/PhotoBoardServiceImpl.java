@@ -16,7 +16,7 @@ import com.file.board.vo.PhotoBoardVO;
 
 @Service
 public class PhotoBoardServiceImpl implements PhotoBoardService {
-	private final String uploadPath = "C:\\java_study\\workspace\\file-board\\WebContent\\resources\\upload\\";
+	private final String uploadPath = "C:\\Users\\Administrator\\git\\fileBoard\\WebContent\\resources\\upload\\";
 	@Autowired
 	private PhotoBoardDAO pbDAO;
 	
